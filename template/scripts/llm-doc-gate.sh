@@ -57,13 +57,15 @@ PAYLOAD=$(
   done
 )
 
-# ── TODO: wire to your LLM CLI ──────────────────────────────────────────
-# Replace the block below with a call to whatever model CLI you use, e.g.:
-#
-#   printf '%s' "$PAYLOAD" | llm --system "$SYSTEM_PROMPT"
-#   printf '%s' "$PAYLOAD" | claude -p "$SYSTEM_PROMPT"
-#
-# Until wired, this prints what WOULD be sent and exits 0 (advisory only).
+# ── LLM CLI invocation ──────────────────────────────────────────────────
+# Primary path uses Simon Willison's `llm` CLI. `-s/--system` plus piping the
+# prompt on stdin is the documented pattern — VERIFIED against
+# https://llm.datasette.io usage docs (2026-07): e.g. `git diff | llm -s '...'`.
+# For a different CLI the system-prompt flag differs and is the one remaining
+# TODO — adapt the line below. For Claude Code, note it is:
+#   printf '%s' "$PAYLOAD" | claude -p --append-system-prompt "$SYSTEM_PROMPT"
+# (plain `claude -p "$SYSTEM_PROMPT"` would send it as the USER prompt).
+# Until a CLI is present, this prints what WOULD be sent and exits 0 (advisory).
 if command -v llm >/dev/null 2>&1; then
   printf '%s' "$PAYLOAD" | llm --system "$SYSTEM_PROMPT"
 else
