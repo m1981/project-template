@@ -57,9 +57,15 @@ python_package:
   when: "{{ project_type in ['A', 'C', 'E'] }}"
 
 _tasks:
+  # Scaffold-only: on `copier update` the repo already exists, so re-running
+  # `git init && commit` would fail ("nothing to commit") and abort the update.
   - command: "git init -q && git add -A && git commit -qm 'chore: scaffold from project-starter (copier)'"
+    when: "{{ _copier_operation == 'copy' }}"
+  # Runs on copy AND update so script permissions survive pulled-in changes.
   - command: "chmod +x scripts/check-governance.sh scripts/pre-commit{% if enable_llm_gate %} scripts/llm-doc-gate.sh{% endif %}"
+  # Runs on copy AND update so hook improvements propagate to existing projects.
   - command: "cp scripts/pre-commit .git/hooks/pre-commit"
     when: "{{ install_hooks }}"
+  # Scaffold-only fence self-test (bootstrap ritual, automated).
   - command: "echo '' > /tmp/scratch-test.md && cp /tmp/scratch-test.md scratch.md && git add scratch.md && (git commit -qm test 2>/dev/null && echo 'WARNING: governance hook did NOT block a headerless doc' || echo 'OK: governance hook blocked headerless scratch.md'); git reset -q scratch.md; rm -f scratch.md"
-    when: "{{ install_hooks }}"
+    when: "{{ install_hooks and _copier_operation == 'copy' }}"
