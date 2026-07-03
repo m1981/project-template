@@ -63,9 +63,11 @@ _tasks:
     when: "{{ _copier_operation == 'copy' }}"
   # Runs on copy AND update so script permissions survive pulled-in changes.
   - command: "chmod +x scripts/check-governance.sh scripts/pre-commit{% if enable_llm_gate %} scripts/llm-doc-gate.sh{% endif %}"
-  # Runs on copy AND update so hook improvements propagate to existing projects.
+  # Scaffold-only: `.git/hooks` isn't available to tasks during `copier update`,
+  # and the shim is a stable 2-liner — the real logic in check-governance.sh
+  # updates through the normal file diff.
   - command: "cp scripts/pre-commit .git/hooks/pre-commit"
-    when: "{{ install_hooks }}"
+    when: "{{ install_hooks and _copier_operation == 'copy' }}"
   # Scaffold-only fence self-test (bootstrap ritual, automated).
   - command: "echo '' > /tmp/scratch-test.md && cp /tmp/scratch-test.md scratch.md && git add scratch.md && (git commit -qm test 2>/dev/null && echo 'WARNING: governance hook did NOT block a headerless doc' || echo 'OK: governance hook blocked headerless scratch.md'); git reset -q scratch.md; rm -f scratch.md"
     when: "{{ install_hooks and _copier_operation == 'copy' }}"
