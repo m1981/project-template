@@ -59,7 +59,7 @@ python_package:
 _tasks:
   # Scaffold-only: on `copier update` the repo already exists, so re-running
   # `git init && commit` would fail ("nothing to commit") and abort the update.
-  - command: "git init -q && git add -A && git commit -qm 'chore: scaffold from project-starter (copier)'"
+  - command: "git init -q && git add -A && git commit -qm 'chore: scaffold from project-template (copier)'"
     when: "{{ _copier_operation == 'copy' }}"
   # Runs on copy AND update so script permissions survive pulled-in changes.
   - command: "chmod +x scripts/check-governance.sh scripts/pre-commit{% if enable_llm_gate %} scripts/llm-doc-gate.sh{% endif %}"
