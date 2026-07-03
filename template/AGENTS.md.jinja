@@ -1,9 +1,11 @@
 # AGENTS.md — {{ project_name }}
 
-> Type: {{ project_type }} | Role: {{ role_line }}
-> Binding rules for any LLM agent here. Seeded from AGENT-CHARTER.md
-> (full text: `docs/AGENT-CHARTER.md` + `docs/AGENT-CHARTER-APPENDIX-A.md`).
-> RFC 2119 language. These override "helpfulness" instincts.
+> Type: {{ project_type }} | Status: active | Horizon: H1 | Role: {{ role_line }}
+> Charter: docs/AGENT-CHARTER.md | Profile: Appendix A.{{ {'A':1,'B':2,'C':3,'D':4,'E':5,'F':6}[project_type] }}
+> Binding rules for any LLM agent here. Seeded from AGENT-CHARTER.md §1/§2/§4/§6
+> + Appendix A.9 (full text: `docs/AGENT-CHARTER.md` +
+> `docs/AGENT-CHARTER-APPENDIX-A.md`). RFC 2119 language; overrides
+> "helpfulness" instincts.
 
 ## 1. Evidence protocol (charter §1)
 - Tag every claim about repo state: `VERIFIED(<path/cmd>)` (you read/ran it
