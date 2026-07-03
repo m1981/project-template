@@ -1,0 +1,65 @@
+_min_copier_version: "9.0.0"
+_subdirectory: template
+
+_exclude:
+  - "copier.yml"
+  - "copier.yaml"
+  - "~*"
+  - "*.py[co]"
+  - "__pycache__"
+  - ".git"
+  - ".DS_Store"
+  - "{% if not enable_llm_gate %}scripts/llm-doc-gate.sh{% endif %}"
+
+project_name:
+  type: str
+  help: Project name (kebab-case, becomes the directory / repo name)
+  validator: >-
+    {% if not (project_name | regex_search('^[a-z][a-z0-9-]+$')) %}
+    kebab-case only: lowercase letters, digits, hyphens
+    {% endif %}
+
+description:
+  type: str
+  help: One-line project description
+  default: ""
+
+project_type:
+  type: str
+  help: Primary component type (charter Appendix A)
+  choices:
+    "A — Library / SDK": "A"
+    "B — CLI tool": "B"
+    "C — Backend API / service": "C"
+    "D — Full-stack app": "D"
+    "E — Data pipeline / ETL / ML": "E"
+    "F — Host-bound plugin (Blender, browser, device)": "F"
+
+role_line:
+  type: str
+  help: One-line role for the README Type header
+  default: "{{ description }}"
+
+install_hooks:
+  type: bool
+  help: Install the pre-commit governance hook now? (recommended once multi-session work starts; harmless day 1)
+  default: true
+
+enable_llm_gate:
+  type: bool
+  help: Include the LLM doc-gate script? (run manually; wire later)
+  default: false
+
+python_package:
+  type: str
+  help: Python package name (snake_case)
+  default: "{{ project_name | replace('-', '_') }}"
+  when: "{{ project_type in ['A', 'C', 'E'] }}"
+
+_tasks:
+  - command: "git init -q && git add -A && git commit -qm 'chore: scaffold from project-starter (copier)'"
+  - command: "chmod +x scripts/check-governance.sh scripts/pre-commit{% if enable_llm_gate %} scripts/llm-doc-gate.sh{% endif %}"
+  - command: "cp scripts/pre-commit .git/hooks/pre-commit"
+    when: "{{ install_hooks }}"
+  - command: "echo '' > /tmp/scratch-test.md && cp /tmp/scratch-test.md scratch.md && git add scratch.md && (git commit -qm test 2>/dev/null && echo 'WARNING: governance hook did NOT block a headerless doc' || echo 'OK: governance hook blocked headerless scratch.md'); git reset -q scratch.md; rm -f scratch.md"
+    when: "{{ install_hooks }}"
